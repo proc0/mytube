@@ -42,11 +42,11 @@ export async function GET() {
         maxResults: 5,
         access_token: token,
       })
+      console.log(response?.data.items)
+      return NextResponse.json({ items: response?.data.items })
     }
   } catch (error) {
     console.log('App Failure:', error)
+    return NextResponse.json({ error })
   }
-
-  console.log(response?.data.items)
-  return NextResponse.json({ items: response?.data.items })
 }
