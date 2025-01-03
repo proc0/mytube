@@ -1,13 +1,17 @@
 import UserAvatar from './components/UserAvatar'
 import { Subscriptions } from './components/Subscriptions'
 
+const Sub = ({ subscription }) => (
+  <div key={subscription?.id}>{subscription.snippet?.title}</div>
+)
+
 export default function Home() {
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   return (
     <>
       <UserAvatar />
       <Subscriptions>
-        {({ item }) => <div>{item.toString()}</div>}
+        <Sub subscription={{ id: 'id', snippet: { title: 'title' } }} />
       </Subscriptions>
     </>
   )

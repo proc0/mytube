@@ -32,7 +32,7 @@ export async function GET() {
     //   (tokenBody?.value as unknown as number[]) || ([] as number[])
     // )
     const token = session?.access_token || null
-    console.log('token:', token)
+    console.log('tokenblah:', token)
 
     if (token && new Date(session?.expires || 0) > new Date()) {
       response = await youtube.subscriptions.list({
