@@ -1,0 +1,65 @@
+{
+  "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Debug Start All",
+      "configurations": ["Next.js: debug client-side", "Attach to Node"],
+      "stopAll": true
+    }
+  ],
+  "configurations": [
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Node",
+      "port": 9230,
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}/src"
+    },
+    {
+      "name": "Next.js: debug server-side",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev --turbo",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        //"webpack-internal:///(rsc)/./*": "${webRoot}/packages/webapp/*"
+        //"webpack://_N_E/*": "${webRoot}/*"
+        "/turbopack/[project]/*": "${webRoot}/*"
+      }
+    },
+    {
+      "name": "Next.js: debug client-side",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        //"webpack-internal:///(rsc)/./*": "${webRoot}/packages/webapp/*"
+        //"webpack://_N_E/*": "${webRoot}/*"
+        "/turbopack/[project]/*": "${webRoot}/*"
+      }
+    },
+    {
+      "name": "Next.js: debug full stack",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev --turbo",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        //"webpack-internal:///(rsc)/./*": "${webRoot}/packages/webapp/*"
+        //"webpack://_N_E/*": "${webRoot}/*"
+        "/turbopack/[project]/*": "${webRoot}/*"
+      },
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        "killOnServerStop": true,
+        "pattern": "- Local:.+(https?://.+)",
+        "uriFormat": "%s",
+        "webRoot": "${workspaceFolder}"
+      }
+    }
+  ]
+}
