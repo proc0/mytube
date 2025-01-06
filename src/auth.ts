@@ -15,37 +15,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  // session: {
-  //   strategy: 'jwt',
-  // },
-  // cookies: {
-  //   sessionToken: {
-  //     name: '__Secure-next-auth.session-token',
-  //     options: {
-  //       httpOnly: true,
-  //       sameSite: 'lax',
-  //       path: '/',
-  //       secure: true,
-  //       domain: 'localhost',
-  //     },
-  //   },
-  // },
   callbacks: {
     async jwt(params) {
-      console.log('JWTparams:', params)
+      console.log('JWTcallback:', params)
       if (params.account) {
         params.token.access_token = params.account?.access_token
       }
       return params.token
     },
     async session(params) {
-      console.log('params. BEFORE:', params)
+      console.log('sessioncallback:', params)
 
       if (params.session && params.token?.access_token) {
         params.session = Object.assign({}, params.session, {
           access_token: params.token.access_token,
         })
-        console.log('sessioncallback:', params.session)
+        console.log('sessioncallback WITH TOKEN:', params.session)
       }
 
       return params.session

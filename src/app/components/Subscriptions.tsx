@@ -1,30 +1,35 @@
-import React, { Children } from 'react'
-import { GET } from '../api/youtube/route'
-// import type {  } from 'react'
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-export async function Subscriptions({
+import React, {
+  Children,
+  ReactElement,
+  ReactNode,
+  cache,
+  cloneElement,
+  isValidElement,
+} from 'react'
+import { GET, YoutubeSubscription } from '../api/youtube/route'
+import type { SubcriptionProps } from './Subscription'
+
+export type SubcriptionsProps = {
+  children: ReactNode
+}
+
+export const Subscriptions: React.FC<SubcriptionsProps> = async ({
   children,
-}: {
-  children: React.ReactNode
-}) {
-  const response = await GET()
-  //   const subs = await response?.json()
+}) => {
+  const response = await cache(GET)()
 
   if (response?.status === 500) {
     return null
   }
 
   const body = await response?.json()
-  const subs = body?.items
 
-  console.log('asdfoiasjdfoiajsodfiaosidfj : ', subs)
   let subscriptions
-  if (subs?.length && children) {
-    const child = Children.only(children)
-
-    subscriptions = subs.map((item) => {
-      return React.cloneElement(child, {
-        ...child.props,
+  const child = Children.only(children)
+  if (body?.items?.length && isValidElement(child)) {
+    subscriptions = body.items.map((item: YoutubeSubscription) => {
+      return cloneElement(child as ReactElement<SubcriptionProps>, {
+        ...(child.props || {}),
         key: item.id,
         subscription: item,
       })
