@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { google } from 'googleapis'
 import { auth } from '@/auth'
+import 'server-only'
 
 export type YoutubeSubscription = {
   readonly kind: string
@@ -42,6 +43,8 @@ export async function GET() {
     maxResults: 5,
     access_token: session.access_token,
   })
+
+  console.log('YOUTUBE SUBS:', data)
 
   return NextResponse.json({ items: data.items })
 }

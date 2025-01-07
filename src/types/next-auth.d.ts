@@ -1,5 +1,5 @@
 import { DefaultSession } from 'next-auth'
-import { DefaultJWT } from '@auth/core/jwt'
+// import { DefaultJWT } from '@auth/core/jwt'
 
 declare module 'next-auth' {
   // Extend user to reveal access_token
@@ -9,12 +9,17 @@ declare module 'next-auth' {
 
   // Extend session to hold the access_token
   interface Session {
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    access_token: (string & DefaultSession) | any
+    access_token: string & DefaultSession
+    error?: 'RefreshTokenError'
   }
+}
 
+declare module 'next-auth/jwt' {
   // Extend token to hold the access_token before it gets put into session
   interface JWT {
-    access_token: string & DefaultJWT
+    access_token?: string
+    expires_at?: number
+    refresh_token?: string
+    error?: 'RefreshTokenError'
   }
 }
