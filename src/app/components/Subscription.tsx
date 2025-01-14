@@ -1,4 +1,4 @@
-import { YoutubeSubscription } from '../api/youtube/route'
+import type { YoutubeSubscription } from 'youtube-types'
 
 export type SubcriptionProps = {
   readonly subscription?: YoutubeSubscription

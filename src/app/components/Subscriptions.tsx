@@ -2,12 +2,13 @@ import React, {
   Children,
   ReactElement,
   ReactNode,
-  cache,
+  // cache,
   cloneElement,
   isValidElement,
 } from 'react'
-import { GET, YoutubeSubscription } from '../api/youtube/route'
+// import { GET } from '../api/youtube/subscriptions/[nextPageToken]/list/route'
 import type { SubcriptionProps } from './Subscription'
+import type { YoutubeSubscription } from 'youtube-types'
 
 export type SubcriptionsProps = {
   children: ReactNode
@@ -16,13 +17,16 @@ export type SubcriptionsProps = {
 export const Subscriptions: React.FC<SubcriptionsProps> = async ({
   children,
 }) => {
-  const response = await cache(GET)()
+  const response = await fetch(
+    'http://localhost:3000/api/youtube/subscriptions/start/list'
+  )
 
   if (response?.status === 500) {
     return null
   }
 
   const body = await response?.json()
+  console.log('BODY', body)
 
   let subscriptions
   const child = Children.only(children)
