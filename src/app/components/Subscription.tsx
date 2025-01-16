@@ -1,3 +1,4 @@
+'use client'
 import type { YoutubeSubscription } from 'youtube-types'
 
 export type SubcriptionProps = {
