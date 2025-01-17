@@ -24,11 +24,9 @@ export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
     prevPageToken: '',
   })
   useEffect(() => {
-    const params = new URLSearchParams()
-    params.set('cursor', cursor)
     fetch(
       'http://localhost:3000/api/youtube/subscriptions/list' +
-        (cursor?.length ? `?${params.toString()}` : '')
+        (cursor.length ? `?${new URLSearchParams({ cursor }).toString()}` : '')
     )
       .then((response) => {
         if (response.status === 500) {
