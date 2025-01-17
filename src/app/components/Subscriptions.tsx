@@ -3,50 +3,55 @@ import React, {
   Children,
   ReactElement,
   ReactNode,
-  // cache,
   cloneElement,
   isValidElement,
   useEffect,
   useState,
 } from 'react'
-// import { GET } from '../api/youtube/subscriptions/[nextPageToken]/list/route'
+
 import type { SubcriptionProps } from './Subscription'
-import type { YoutubeSubscription } from 'youtube-types'
+import type { SubscriptionItem } from 'youtube-types'
 
 export type SubcriptionsProps = {
   children: ReactNode
 }
 
 export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
-  const [nextPageToken, setNextPageToken] = useState('')
-  const [body, setBody] = useState({ items: [], nextPageToken: '' })
+  const [cursor, setCursor] = useState('')
+  const [result, setResult] = useState({
+    items: [],
+    nextPageToken: '',
+    prevPageToken: '',
+  })
   useEffect(() => {
+    const params = new URLSearchParams()
+    params.set('cursor', cursor)
     fetch(
-      'http://localhost:3000/api/youtube/subscriptions' +
-        (nextPageToken.length ? `/${nextPageToken}` : '/start') +
-        '/list'
+      'http://localhost:3000/api/youtube/subscriptions/list' +
+        (cursor?.length ? `?${params.toString()}` : '')
     )
-      .then((res) => {
-        if (res?.status === 500) {
+      .then((response) => {
+        if (response.status === 500) {
           return null
         }
 
-        return res?.json()
+        return response.json()
       })
-      .then((res2) => {
-        console.log('RES2', res2)
+      .then((result) => setResult(result))
+  }, [cursor])
 
-        return setBody(res2)
-      })
-  }, [nextPageToken])
+  if (!result) {
+    return <>ERROR</>
+  }
 
-  if (!body.items.length) {
+  if (!result.items.length) {
     return <>Loading...</>
   }
+
   let subscriptions
   const child = Children.only(children)
-  if (body?.items?.length && isValidElement(child)) {
-    subscriptions = body.items.map((item: YoutubeSubscription) => {
+  if (isValidElement(child)) {
+    subscriptions = result.items.map((item: SubscriptionItem) => {
       return cloneElement(child as ReactElement<SubcriptionProps>, {
         ...(child.props || {}),
         key: item.id,
@@ -56,16 +61,25 @@ export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
   }
 
   let nextPageButton
-  if (body?.nextPageToken) {
+  if (result?.nextPageToken) {
     nextPageButton = (
-      <button onClick={() => setNextPageToken(body.nextPageToken)}>
-        Next page
+      <button onClick={() => setCursor(result.nextPageToken)}>Next page</button>
+    )
+  }
+
+  let prevPageButton
+  if (result?.prevPageToken) {
+    prevPageButton = (
+      <button onClick={() => setCursor(result.prevPageToken)}>
+        Previous page
       </button>
     )
   }
+
   return (
     <>
       {subscriptions}
+      {prevPageButton}
       {nextPageButton}
     </>
   )

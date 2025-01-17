@@ -1,13 +1,13 @@
 'use client'
-import type { YoutubeSubscription } from 'youtube-types'
+import type { SubscriptionItem } from 'youtube-types'
 
 export type SubcriptionProps = {
-  readonly subscription?: YoutubeSubscription
+  readonly subscription?: SubscriptionItem
 }
 
 export const Subscription: React.FC<SubcriptionProps> = ({ subscription }) =>
   subscription ? (
-    <div key={subscription.id}>{subscription.snippet.title}</div>
+    <div key={subscription.id}>{subscription.snippet?.title}</div>
   ) : (
     <div>Something went wrong with subscription list.</div>
   )
