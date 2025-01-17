@@ -1,4 +1,4 @@
-import { auth } from '../../auth'
+import { auth } from '@/auth'
 import SignIn from './auth/signinbutton'
 import Image from 'next/image'
 
