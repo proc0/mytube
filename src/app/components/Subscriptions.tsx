@@ -5,10 +5,9 @@ import React, {
   ReactNode,
   cloneElement,
   isValidElement,
-  useEffect,
   useState,
 } from 'react'
-
+import useSWR from 'swr'
 import type { SubcriptionProps } from './Subscription'
 import type { SubscriptionItem } from 'youtube-types'
 
@@ -16,40 +15,41 @@ export type SubcriptionsProps = {
   children: ReactNode
 }
 
+const getSubscriptionUrl = (cursor?: string) =>
+  'http://localhost:3000/api/youtube/subscriptions/list' +
+  (cursor?.length ? `?${new URLSearchParams({ cursor }).toString()}` : '')
+
+const fetchSubscriptions = (url: string) =>
+  fetch(url).then((response) => {
+    if (response.status === 500) {
+      return null
+    }
+
+    return response.json()
+  })
+
 export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
   const [cursor, setCursor] = useState('')
-  const [result, setResult] = useState({
-    items: [],
-    nextPageToken: '',
-    prevPageToken: '',
-  })
-  useEffect(() => {
-    fetch(
-      'http://localhost:3000/api/youtube/subscriptions/list' +
-        (cursor.length ? `?${new URLSearchParams({ cursor }).toString()}` : '')
-    )
-      .then((response) => {
-        if (response.status === 500) {
-          return null
-        }
+  const { data, error, isLoading } = useSWR(
+    getSubscriptionUrl(cursor),
+    fetchSubscriptions,
+    {
+      revalidateIfStale: false,
+    }
+  )
 
-        return response.json()
-      })
-      .then((result) => setResult(result))
-  }, [cursor])
-
-  if (!result) {
-    return <>ERROR</>
+  if (isLoading) {
+    return <>Loading...</>
   }
 
-  if (!result.items.length) {
-    return <>Loading...</>
+  if (error || !data) {
+    return <>ERROR</>
   }
 
   let subscriptions
   const child = Children.only(children)
   if (isValidElement(child)) {
-    subscriptions = result.items.map((item: SubscriptionItem) => {
+    subscriptions = data.items.map((item: SubscriptionItem) => {
       return cloneElement(child as ReactElement<SubcriptionProps>, {
         ...(child.props || {}),
         key: item.id,
@@ -59,16 +59,16 @@ export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
   }
 
   let nextPageButton
-  if (result?.nextPageToken) {
+  if (data.nextPageToken) {
     nextPageButton = (
-      <button onClick={() => setCursor(result.nextPageToken)}>Next page</button>
+      <button onClick={() => setCursor(data.nextPageToken)}>Next page</button>
     )
   }
 
   let prevPageButton
-  if (result?.prevPageToken) {
+  if (data.prevPageToken) {
     prevPageButton = (
-      <button onClick={() => setCursor(result.prevPageToken)}>
+      <button onClick={() => setCursor(data.prevPageToken)}>
         Previous page
       </button>
     )
