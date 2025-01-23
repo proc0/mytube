@@ -8,13 +8,13 @@ type SubscriptionsError = {
   error: string
 }
 
-type SubscriptionsResults = {
+export type SubscriptionsResults = {
   items: SubscriptionItem[] | undefined
   nextPageToken: string | null | undefined
   prevPageToken: string | null | undefined
 }
 
-type GetSubscriptionsResults =
+export type GetSubscriptionsResults =
   | NextResponse<SubscriptionsError>
   | NextResponse<SubscriptionsResults>
 
@@ -42,7 +42,7 @@ export const GET: GetSubscriptions = async (request) => {
   const youtubeOptions = {
     part: ['snippet,contentDetails'],
     mine: true,
-    maxResults: 5,
+    maxResults: 20,
     access_token: session.access_token,
     ...pageToken,
   }
