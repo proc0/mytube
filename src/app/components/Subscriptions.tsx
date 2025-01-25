@@ -10,6 +10,7 @@ import React, {
   useState,
 } from 'react'
 import useSWRInfinite from 'swr/infinite'
+import BlockWave from './BlockWave'
 import type { SubcriptionProps } from './Subscription'
 import type { SubscriptionItem } from 'youtube-types'
 import type { SubscriptionsResults } from '@/app/api/youtube/subscriptions/list/route'
@@ -82,8 +83,8 @@ export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
   const child = Children.only(children)
 
   return (
-    <div className='bg-black'>
-      <div className='mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8'>
+    <div className='bg-black sm:pb-24'>
+      <div className='mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-12 lg:max-w-7xl lg:px-8'>
         <div className='mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8'>
           {!swr.isLoading &&
             swr.data?.map((data) => {
@@ -99,14 +100,11 @@ export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
               }
               return subscriptions || []
             })}
-          <div style={{ position: 'relative' }}>
-            <div
-              ref={intersectionRef}
-              style={{ position: 'absolute', top: 0 }}
-            ></div>
-            {swr.isValidating ? 'Loading' : ''}
-          </div>
         </div>
+      </div>
+      <div className='relative flex-auto grow justify-items-center'>
+        <div ref={intersectionRef} className='absolute top-0'></div>
+        <BlockWave />
       </div>
     </div>
   )
