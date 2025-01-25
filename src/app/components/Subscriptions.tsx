@@ -49,34 +49,34 @@ export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
     keepPreviousData: true,
     revalidateFirstPage: false,
   })
-  let observer = useRef<IntersectionObserver>(null)
   const [intersecting, setIntersecting] = useState<boolean>(false)
-  const threshold = useRef<HTMLDivElement>(null)
+  const intersectionRef = useRef<HTMLDivElement>(null)
+  let observerRef = useRef<IntersectionObserver>(null)
+
+  if (global?.window && !observerRef?.current) {
+    observerRef = {
+      current: new global.window.IntersectionObserver(([el]) => {
+        if (intersecting !== el.isIntersecting) {
+          setIntersecting(el.isIntersecting)
+        }
+      }),
+    }
+  }
 
   useEffect(() => {
-    if (!observer?.current)
-      observer = {
-        current: new IntersectionObserver(([el]) => {
-          if (intersecting !== el.isIntersecting) {
-            setIntersecting(el.isIntersecting)
-          }
-        }),
-      }
+    if (!intersectionRef?.current) return
 
-    if (!threshold?.current) return
+    const intersection = intersectionRef.current
+    const observer = observerRef.current
 
-    const thresh = threshold.current
+    observer?.observe(intersection)
 
-    observer.current?.observe(thresh)
-
-    return () => observer?.current?.unobserve(thresh)
-  }, [intersecting])
-
-  useEffect(() => {
     if (intersecting && !swr.isValidating) {
       swr.setSize((size) => size + 1)
     }
-    // eslint-ignore-next-line react-hooks/exhaustive-deps
+
+    return () => observer?.unobserve(intersection)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intersecting])
 
   const child = Children.only(children)
@@ -100,7 +100,10 @@ export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
               return subscriptions || []
             })}
           <div style={{ position: 'relative' }}>
-            <div ref={threshold} style={{ position: 'absolute', top: 0 }}></div>
+            <div
+              ref={intersectionRef}
+              style={{ position: 'absolute', top: 0 }}
+            ></div>
             {swr.isValidating ? 'Loading' : ''}
           </div>
         </div>
