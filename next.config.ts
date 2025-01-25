@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
         // pathname: '/account123/**',
         // search: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'yt3.ggpht.com',
+      },
     ],
   },
 }

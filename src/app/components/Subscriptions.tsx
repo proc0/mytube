@@ -5,34 +5,34 @@ import React, {
   ReactNode,
   cloneElement,
   isValidElement,
-  // useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRResponse } from 'swr'
 import type { SubcriptionProps } from './Subscription'
 import type { SubscriptionItem } from 'youtube-types'
-import InfiniteScroll from '@/app/modules/InfiniteScroll'
 import type { SubscriptionsResults } from '@/app/api/youtube/subscriptions/list/route'
 
 export type SubcriptionsProps = {
   children: ReactNode
 }
 
-const getSubscriptionUrl = (
+const getSubscriptionsParams = (cursor: string): string =>
+  `?${new URLSearchParams({
+    cursor,
+  }).toString()}`
+
+const getSubscriptionsUrl = (
   pageIndex: number,
   previousPageData: SubscriptionsResults
-) => {
-  // if (!previousPageData || !cursor?.length) return null
+): string | undefined => {
+  if (pageIndex === 0 && !previousPageData?.nextPageToken)
+    return '/api/youtube/subscriptions/list'
 
-  if (pageIndex === 0)
-    return 'http://localhost:3000/api/youtube/subscriptions/list'
-
-  return (
-    'http://localhost:3000/api/youtube/subscriptions/list' +
-    `?${new URLSearchParams({
-      cursor: previousPageData.nextPageToken || '',
-    }).toString()}`
-  )
+  const cursor = previousPageData.nextPageToken
+  if (cursor)
+    return '/api/youtube/subscriptions/list' + getSubscriptionsParams(cursor)
 }
 
 const fetchSubscriptions = (url: string) =>
@@ -45,61 +45,48 @@ const fetchSubscriptions = (url: string) =>
   })
 
 export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
-  // let [cursor] = useState('')
-  const swr = useSWRInfinite(getSubscriptionUrl, fetchSubscriptions)
+  const swr = useSWRInfinite(getSubscriptionsUrl, fetchSubscriptions, {
+    keepPreviousData: true,
+    revalidateFirstPage: false,
+  })
+  let observer = useRef<IntersectionObserver>(null)
+  const [intersecting, setIntersecting] = useState<boolean>(false)
+  const threshold = useRef<HTMLDivElement>(null)
 
-  // if (swr.isLoading) {
-  //   return <>Loading...</>
-  // }
+  useEffect(() => {
+    if (!observer?.current)
+      observer = {
+        current: new IntersectionObserver(([el]) => {
+          if (intersecting !== el.isIntersecting) {
+            setIntersecting(el.isIntersecting)
+          }
+        }),
+      }
 
-  // if (swr.error || !swr.data) {
-  //   return <>ERROR</>
-  // }
+    if (!threshold?.current) return
 
-  // let subscriptions
+    const thresh = threshold.current
+
+    observer.current?.observe(thresh)
+
+    return () => observer?.current?.unobserve(thresh)
+  }, [intersecting])
+
+  useEffect(() => {
+    if (intersecting && !swr.isValidating) {
+      swr.setSize((size) => size + 1)
+    }
+    // eslint-ignore-next-line react-hooks/exhaustive-deps
+  }, [intersecting])
+
   const child = Children.only(children)
-  // if (data.items?.length && isValidElement(child)) {
-  //   subscriptions = data.items.map((item: SubscriptionItem) => {
-  //     return cloneElement(child as ReactElement<SubcriptionProps>, {
-  //       ...(child.props || {}),
-  //       key: item.id,
-  //       subscription: item,
-  //     })
-  //   })
-  // }
-
-  // let nextPageButton
-  // if (data.nextPageToken) {
-  //   nextPageButton = (
-  //     <button onClick={() => setCursor(swr.data.nextPageToken)}>
-  //       Next page
-  //     </button>
-  //   )
-  // }
-
-  // let prevPageButton
-  // if (data.prevPageToken) {
-  //   prevPageButton = (
-  //     <button onClick={() => setCursor(swr.data.prevPageToken)}>
-  //       Previous page
-  //     </button>
-  //   )
-  // }
 
   return (
     <div className='bg-black'>
       <div className='mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8'>
         <div className='mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8'>
-          <InfiniteScroll
-            swr={swr}
-            loadingIndicator='Loading...'
-            endingIndicator='No more Subscriptions'
-            isReachingEnd={(swr: SWRResponse) => {
-              // cursor = swr.data.nextPageToken
-              return false
-            }}
-          >
-            {(data) => {
+          {!swr.isLoading &&
+            swr.data?.map((data) => {
               let subscriptions
               if (data && data.items?.length && isValidElement(child)) {
                 subscriptions = data.items.map((item: SubscriptionItem) => {
@@ -111,8 +98,11 @@ export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
                 })
               }
               return subscriptions || []
-            }}
-          </InfiniteScroll>
+            })}
+          <div style={{ position: 'relative' }}>
+            <div ref={threshold} style={{ position: 'absolute', top: 0 }}></div>
+            {swr.isValidating ? 'Loading' : ''}
+          </div>
         </div>
       </div>
     </div>
