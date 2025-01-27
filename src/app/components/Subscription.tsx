@@ -28,9 +28,22 @@ const ChannelDetails = ({
     }
   )
 
-  if (error || !data) return null
+  if (error || !data || !data.items?.length) return null
 
-  return <>{data.items?.map((d: ChannelItem) => d.snippet?.customUrl)}</>
+  const channelInfo = (data.items[0] as ChannelItem).snippet
+  const ytUrl = `https://youtube.com/${channelInfo?.customUrl}`
+
+  return (
+    <div>
+      <h3 className='text-sm'>
+        <a href={ytUrl} target='blank'>
+          <span aria-hidden='true' className='absolute inset-0'></span>
+          {channelInfo?.title}
+        </a>
+      </h3>
+      <p className='mt-1'>{channelInfo?.description}</p>
+    </div>
+  )
 }
 
 export type SubcriptionProps = {
@@ -44,34 +57,35 @@ export const Subscription: React.FC<SubcriptionProps> = ({ subscription }) => {
     return <div>Something went wrong with subscription list.</div>
 
   return (
-    <div key={subscription.id} className='group relative'>
-      <Image
-        src={subscription.snippet?.thumbnails?.medium?.url || ''}
-        alt={subscription.snippet?.title || ''}
-        className='aspect-square w-full rounded-md bg-gray-200 object-cover group-hover:opacity-75 lg:aspect-auto'
-        width={274}
-        height={320}
-        priority={true}
-      />
-      <div className='mt-4 flex justify-between'>
-        <div>
-          <h3 className='text-sm text-gray-700'>
-            <a href='#' onClick={() => setStartFetching(true)}>
-              <span aria-hidden='true' className='absolute inset-0'></span>
-              {subscription.snippet?.channelId}
-            </a>
-          </h3>
-          <p className='mt-1 text-sm text-gray-500'>
-            {subscription.snippet?.title}
-          </p>
+    <div
+      key={subscription.id}
+      className='group h-[274px] w-[274px] [perspective:1000px] drop-shadow-xl'
+    >
+      <div
+        onClick={(e) => {
+          setStartFetching(true)
+          e.currentTarget.classList.add('[transform:rotateY(180deg)]')
+        }}
+        className='relative h-full w-full rounded-xl shadow-xl transition-all duration-500 [transform-style:preserve-3d] group-hover:cursor-pointer'
+      >
+        <div className='absolute inset-0 h-full w-full rounded-xl [backface-visibility:hidden]'>
+          <Image
+            src={subscription.snippet?.thumbnails?.medium?.url || ''}
+            alt={subscription.snippet?.title || ''}
+            className='rounded-md object-coverv'
+            width={274}
+            height={274}
+            priority={true}
+          />
         </div>
-        <p className='text-sm font-medium text-gray-900'>$35</p>
+        <div className='absolute inset-0 h-full w-full rounded-md bg-[#bbb] px-8 py-8 text-center text-black [transform:rotateY(180deg)] [backface-visibility:hidden]'>
+          {startFetching ? (
+            <ChannelDetails
+              channelId={subscription?.snippet?.resourceId?.channelId}
+            />
+          ) : undefined}
+        </div>
       </div>
-      {startFetching ? (
-        <ChannelDetails
-          channelId={subscription?.snippet?.resourceId?.channelId}
-        />
-      ) : undefined}
     </div>
   )
 }
