@@ -42,7 +42,7 @@ export const GET: GetChannel = async (request) => {
 
   //   const pageToken = cursor ? { pageToken: cursor } : {}
   const youtubeOptions = {
-    part: ['snippet'],
+    part: ['snippet,statistics'],
     id: [channelId],
     access_token: session.access_token,
     maxResults: 1,
