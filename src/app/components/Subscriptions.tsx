@@ -83,7 +83,7 @@ export const Subscriptions: React.FC<SubcriptionsProps> = ({ children }) => {
   const child = Children.only(children)
 
   return (
-    <div className='bg-gray-900 pb-12 h-full'>
+    <div className='pb-12 h-full'>
       <div className='mx-auto px-8 py-8 sm:px-4 sm:py-12 lg:max-w-6xl'>
         <div className='mx-auto grid gap-8 space-y-10 sm:gap-8 md:space-y-0 md:grid-cols-3 lg:grid-cols-4'>
           {!swr.isLoading &&

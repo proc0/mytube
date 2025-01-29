@@ -6,9 +6,6 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
-        // port: '',
-        // pathname: '/account123/**',
-        // search: '',
       },
       {
         protocol: 'https',

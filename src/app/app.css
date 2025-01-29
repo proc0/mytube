@@ -1,0 +1,57 @@
+/* @theme inline {
+  --color-moss: #6f7302;
+  --color-grass: #595302;
+  --color-root: #403c01;
+  --color-bark: #262001;
+  --color-dirt: #260f01;
+  --color-blood:#4d0707;
+  --color-dusk: #8c0d0d;
+  --color-sunset: #f22816;
+  --color-sun: #f2e6c2;
+} */
+
+.card-bg-alt {
+  width: 100%;
+  height: 100%;
+  /* Add your background pattern here */
+  background-image: repeating-radial-gradient(#f8f1f1ee 88%, #a1000e 90%);
+  background-size: 50px 50px;
+}
+
+.card-bg {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-dirt);
+  background-image: linear-gradient(
+      45deg,
+      rgba(224, 7, 7, 0.08) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(224, 7, 7, 0.08) 75%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(224, 7, 7, 0.08) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(224, 7, 7, 0.08) 75%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 40%,
+      rgba(172, 9, 9, 0.1) 40%,
+      rgba(172, 9, 9, 0.1) 60%,
+      transparent 60%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 40%,
+      rgba(172, 9, 9, 0.1) 40%,
+      rgba(172, 9, 9, 0.1) 60%,
+      transparent 60%
+    ),
+    radial-gradient(circle at 50% 50%, #260f01 0%, #261f01 100%);
+  background-size: 60px 60px, 60px 60px, 120px 120px, 120px 120px, 100% 100%;
+  background-position: 0 0, 30px 30px, 0 0, 60px 60px, 0 0;
+  position: relative;
+}
