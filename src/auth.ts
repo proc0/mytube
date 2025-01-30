@@ -30,11 +30,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           expires_at,
           refresh_token,
         }
-      } else if (
-        token.expires_at &&
-        Math.floor(Date.now() / 1000) < token.expires_at
-      ) {
-        // console.log('token is still valid:', token)
+      } else if (token.expires_at && Date.now() < token.expires_at) {
+        console.log('token is still valid')
         return token
       } else if (token.refresh_token) {
         // console.log('refreshing token:', token)
@@ -56,7 +53,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (!response.ok) throw refreshResponse
 
           const { access_token, expires_in, refresh_token } = refreshResponse
-          const expires_at = Math.floor(Date.now() / 1000) + expires_in * 60
+          const expires_at = Date.now() + expires_in * 1000
 
           return {
             ...token,
