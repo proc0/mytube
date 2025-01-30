@@ -22,7 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
-        // console.log('first login:', token, account)
+        console.log('first login:', token, account)
         const { access_token, expires_at, refresh_token } = account
         return {
           ...token,
@@ -31,13 +31,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           refresh_token,
         }
       } else if (
-        typeof token.expires_at === 'number' &&
-        Date.now() < token.expires_at * 1000
+        token.expires_at &&
+        Math.floor(Date.now() / 1000) < token.expires_at
       ) {
         // console.log('token is still valid:', token)
         return token
       } else if (token.refresh_token) {
+        // console.log('refreshing token:', token)
         try {
+          if (token.error) throw token
           const response = await fetch('https://oauth2.googleapis.com/token', {
             method: 'POST',
             body: new URLSearchParams({
@@ -49,15 +51,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           })
 
           const refreshResponse: RefreshResponse = await response.json()
-          console.log('refreshing token:', refreshResponse)
+          console.log('refreshing token response:', refreshResponse)
 
           if (!response.ok) throw refreshResponse
 
           const { access_token, expires_in, refresh_token } = refreshResponse
+          const expires_at = Math.floor(Date.now() / 1000) + expires_in * 60
+
           return {
             ...token,
             access_token,
-            expires_at: Math.floor(Date.now() / 1000 + expires_in),
+            expires_at,
             // preserve refresh_token if provider only issues refresh tokens once
             refresh_token: refresh_token || token.refresh_token,
           }
