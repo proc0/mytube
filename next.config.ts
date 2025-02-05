@@ -6,10 +6,14 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+        search: '',
       },
       {
         protocol: 'https',
         hostname: 'yt3.ggpht.com',
+        pathname: '/**',
+        search: '',
       },
     ],
   },
